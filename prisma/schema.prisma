@@ -49,6 +49,7 @@ model Links {
   short_code String      @unique
   created_at DateTime    @default(now())
   user_id    String
+  password   String?
   active     Boolean     @default(true)
   user       User        @relation(fields: [user_id], references: [id])
   accessLogs AccessLog[]
