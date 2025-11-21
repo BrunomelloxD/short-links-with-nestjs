@@ -6,11 +6,43 @@ import { PaginatedResponseDto } from "src/common/dtos/paginated-response.dto";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
 import { CreateLinkDto } from "../dtos/create-link.dto";
 import { Links } from "@prisma/client";
+import { UpdateLinkDto } from "../dtos/update-link.dto";
 
 
 @Injectable()
 export class LinkRepository implements LinkRepositoryInterface {
     constructor(private readonly prismaService: PrismaService) { }
+
+    async delete(id: string): Promise<void> {
+        await this.prismaService.links.delete({
+            where: { id }
+        });
+    }
+
+    async update(id: string, data: Partial<UpdateLinkDto>): Promise<LinkResponseDto> {
+        const updatedLink = await this.prismaService.links.update({
+            where: { id },
+            data: {
+                url: data.url,
+                active: data.active,
+                password: data.password
+            },
+            select: {
+                id: true,
+                url: true,
+                short_code: true,
+                created_at: true
+            }
+        });
+
+        return updatedLink;
+    }
+
+    async findOneById(id: string): Promise<Links | null> {
+        return this.prismaService.links.findUnique({
+            where: { id }
+        });
+    }
 
     async findOneByShortCode(shortCode: string): Promise<Links | null> {
         return this.prismaService.links.findUnique({
@@ -29,7 +61,8 @@ export class LinkRepository implements LinkRepositoryInterface {
                     url: true,
                     password: true,
                     short_code: true,
-                    created_at: true
+                    created_at: true,
+                    active: true
                 },
                 orderBy: { created_at: 'desc' },
             }),

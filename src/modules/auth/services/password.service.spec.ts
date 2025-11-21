@@ -4,7 +4,7 @@ import { PasswordService } from './password.service';
 import { PasswordRecoveryRepository } from '../repositories/password-recovery.repository';
 import { UserService } from 'src/modules/users/services/user.service';
 import { MailService } from 'src/modules/mail/services/mail.service';
-import { User } from 'generated/prisma';
+import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 jest.mock('bcrypt');

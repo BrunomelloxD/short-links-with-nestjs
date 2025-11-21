@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { TokenService } from './token.service';
 import { JwtPayload } from '../types/auth.types';
-import { User } from 'generated/prisma';
+import { User } from '@prisma/client';
 
 jest.mock('../../../common/config/env.config', () => ({
     security: {

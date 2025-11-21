@@ -5,7 +5,7 @@ import { UserService } from 'src/modules/users/services/user.service';
 import { TokenService } from './token.service';
 import { LoginUserDto } from '../dtos/login-user.dto';
 import { AuthResponse } from '../types/auth.types';
-import { User } from 'generated/prisma';
+import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 jest.mock('bcrypt');

@@ -1,19 +1,44 @@
-import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { LinkRepository } from "../repositories/link.repository";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
 import { PaginatedResponseDto } from "src/common/dtos/paginated-response.dto";
 import { LinkResponseDto } from "../dtos/response/link-response.dto";
 import { CreateLinkDto } from "../dtos/create-link.dto";
 import { nanoid } from 'nanoid';
+import { UpdateLinkDto } from "../dtos/update-link.dto";
 
 @Injectable()
 export class LinkService {
     constructor(private readonly linkRepository: LinkRepository) { }
 
+    async delete(id: string, userId: string): Promise<void> {
+        const link = await this.linkRepository.findOneById(id);
+
+        if (!link) throw new NotFoundException(`Link with ID ${id} not found.`);
+
+        if (link.user_id !== userId) throw new ForbiddenException('You do not have permission to delete this link.');
+
+        return this.linkRepository.delete(id);
+    }
+
+    async update(id: string, data: UpdateLinkDto, userId: string): Promise<LinkResponseDto> {
+        const link = await this.linkRepository.findOneById(id);
+
+        if (!link) throw new NotFoundException(`Link with ID ${id} not found.`);
+
+        if (link.user_id !== userId) throw new ForbiddenException('You do not have permission to update this link.');
+
+        if (data.protected && link.password == null) data.password = await this.generatePassword();
+
+        if (!data.protected) data.password = null;
+
+        return this.linkRepository.update(id, data);
+    }
+
     async findOneByShortCodeProtected(shortCode: string, password: string): Promise<LinkResponseDto> {
         const link = await this.linkRepository.findOneByShortCode(shortCode);
 
-        if (!link) {
+        if (!link || !link.active) {
             throw new NotFoundException(`Link with short code ${shortCode} not found.`);
         }
 
@@ -40,22 +65,25 @@ export class LinkService {
         data.short_code = await this.generateShortCode();
 
         if (data.protected) {
-            data.password = await this.generatePassword();
+            const password = await this.generatePassword();
+            data.password = password;
         }
 
-        return await this.linkRepository.create(data, userId);
+        const link = await this.linkRepository.create(data, userId);
+
+        return {
+            ...link,
+            password: data.password
+        };
     }
 
     async findOneByShortCode(shortCode: string): Promise<LinkResponseDto> {
         const link = await this.linkRepository.findOneByShortCode(shortCode);
 
-        if (!link) {
-            throw new NotFoundException(`Link with short code ${shortCode} not found.`);
-        }
+        if (!link || !link.active) throw new NotFoundException(`Link with short code ${shortCode} not found.`);
 
-        if (link?.password) {
-            throw new UnauthorizedException('This link is protected with a password.');
-        }
+
+        if (link?.password) throw new UnauthorizedException('This link is protected with a password.');
 
         const { password, user_id, ...response } = link;
 

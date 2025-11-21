@@ -4,4 +4,5 @@ export class LinkResponseDto {
     url: string;
     short_code: string;
     created_at: Date;
+    password?: string | null;
 }

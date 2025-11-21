@@ -8,4 +8,7 @@ export abstract class LinkRepositoryInterface {
     abstract findAll({ page, limit, search }: PaginationDto, userId: string): Promise<PaginatedResponseDto<LinkResponseDto>>;
     abstract create(data: CreateLinkDto, userId: string): Promise<LinkResponseDto>;
     abstract findOneByShortCode(shortCode: string): Promise<Links | null>;
+    abstract findOneById(id: string): Promise<Links | null>;
+    abstract update(id: string, data: Partial<CreateLinkDto>): Promise<LinkResponseDto>;
+    abstract delete(id: string): Promise<void>;
 }
