@@ -1,25 +1,38 @@
 FROM node:lts-alpine3.20 AS deps
 WORKDIR /home/node/app
 COPY package*.json ./
-RUN npm install
+RUN npm ci --only=production && npm cache clean --force
 
 FROM node:lts-alpine3.20 AS builder
 WORKDIR /home/node/app
-COPY --from=deps /home/node/app/node_modules ./node_modules
+COPY package*.json ./
+RUN npm ci
 COPY . .
 
-RUN DATABASE_URL="" npx prisma generate
+# Generate Prisma Client (requires a dummy DATABASE_URL for generation only)
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
 
 RUN npm run build
 
-FROM node:lts-alpine3.20 AS final
+FROM node:lts-alpine3.20 AS production
 WORKDIR /home/node/app
+
+# Copy node_modules from builder (includes generated Prisma Client)
 COPY --from=builder /home/node/app/node_modules ./node_modules
+# Copy built application
 COPY --from=builder /home/node/app/dist ./dist
+# Copy Prisma schema for runtime
 COPY --from=builder /home/node/app/prisma ./prisma
+# Copy package files
 COPY --from=builder /home/node/app/package*.json ./
-COPY --from=builder /home/node/app/nest-cli.json ./
-COPY --from=builder /home/node/app/tsconfig.json ./
-COPY --from=builder /home/node/app/tsconfig.build.json ./
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 && \
+    chown -R nodejs:nodejs /home/node/app
+
+USER nodejs
 
 EXPOSE 3000
+
+CMD ["node", "dist/app/app/main.js"]
