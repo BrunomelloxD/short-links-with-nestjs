@@ -84,9 +84,13 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
+    "transformIgnorePatterns": [
+      "node_modules/(?!nanoid)"
+    ],
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/$1",
-      "^generated/prisma$": "<rootDir>/../generated/prisma"
+      "^generated/prisma$": "<rootDir>/../generated/prisma",
+      "^nanoid$": "<rootDir>/../node_modules/nanoid/index.js"
     }
   }
 }

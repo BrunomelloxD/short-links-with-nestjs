@@ -64,6 +64,7 @@ export class UserService {
 
         const hashedPassword = await hash(data.password, security.bcrypt.saltRounds);
         data.password = hashedPassword;
+        data.email_verified = true;
 
         return this.userRepository.create(data);
     }
