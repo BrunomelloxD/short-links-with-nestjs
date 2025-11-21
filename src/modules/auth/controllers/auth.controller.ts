@@ -15,9 +15,9 @@ export class AuthController {
 
     @Public()
     @Post('login')
-    @ApiOperation({ summary: 'Login do usuário' })
-    @ApiResponse({ status: HttpStatus.OK, description: 'Login realizado com sucesso' })
-    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Credenciais inválidas' })
+    @ApiOperation({ summary: 'User login' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Login successful' })
+    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid credentials' })
     @HttpCode(HttpStatus.OK)
     signIn(@Body() data: LoginUserDto) {
         return this.authService.signIn(data);
@@ -25,9 +25,9 @@ export class AuthController {
 
     @Public()
     @Post('recover-password/request')
-    @ApiOperation({ summary: 'Requisitar nova senha' })
-    @ApiResponse({ status: HttpStatus.OK, description: 'Requisição realizada com sucesso' })
-    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'E-mail inválido' })
+    @ApiOperation({ summary: 'Request password recovery' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Recovery request sent successfully' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Email not found' })
     @HttpCode(HttpStatus.OK)
     recoverPassword(@Body() data: RecoveryPasswordDto) {
         return this.passwordService.recoverPassword(data.email);
@@ -35,18 +35,18 @@ export class AuthController {
 
 
     @Public()
-    @ApiOperation({ summary: 'Verificação de redefinição de senha' })
-    @ApiResponse({ status: HttpStatus.OK, description: 'Verificação realizada com sucesso' })
-    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Código de redefinição inválido' })
+    @ApiOperation({ summary: 'Verify password recovery code' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Code verified successfully' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Invalid recovery code' })
     @Post('recover-password/verify')
     async verifyRecoveryCode(@Body() data: VerifyRecoveryCodeDto) {
         return this.passwordService.verifyRecoveryCode(data);
     }
 
     @Public()
-    @ApiOperation({ summary: 'Redefinição de senha' })
-    @ApiResponse({ status: HttpStatus.OK, description: 'Redefinição realizada com sucesso' })
-    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Código de redefinição inválido' })
+    @ApiOperation({ summary: 'Reset password' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Password reset successfully' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Invalid recovery code' })
     @HttpCode(HttpStatus.OK)
     @Post('recover-password/reset')
     async resetPassword(@Body() data: ResetPasswordDto) {
