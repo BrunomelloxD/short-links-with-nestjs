@@ -6,10 +6,11 @@ import { AuthGuard } from 'src/common/guards/auth.guard';
 import { AuthModule } from 'src/modules/auth/auth.module';
 import { HealthModule } from 'src/modules/health/health.module';
 import { LinkModule } from 'src/modules/links/link.module';
+import { TasksModule } from 'src/modules/tasks/task.module';
 import { UserModule } from 'src/modules/users/user.module';
 
 @Module({
-  imports: [HealthModule, UserModule, AuthModule, LinkModule,
+  imports: [HealthModule, UserModule, AuthModule, LinkModule, TasksModule,
     ThrottlerModule.forRoot({
       throttlers: [
         {

@@ -61,10 +61,10 @@ export class LinkService {
         return this.linkRepository.findAll(paginationDto, userId);
     }
 
-    async create(data: CreateLinkDto, userId: string): Promise<LinkResponseDto> {
+    async create(data: CreateLinkDto, userId: string | null): Promise<LinkResponseDto> {
         data.short_code = await this.generateShortCode();
 
-        if (data.protected) {
+        if (data.protected && userId) {
             const password = await this.generatePassword();
             data.password = password;
         }

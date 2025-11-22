@@ -13,6 +13,21 @@ import { UpdateLinkDto } from "../dtos/update-link.dto";
 export class LinkRepository implements LinkRepositoryInterface {
     constructor(private readonly prismaService: PrismaService) { }
 
+    async findExpiredAnonymousLinks(cutoffDate: Date): Promise<Links[]> {
+        return this.prismaService.links.findMany({
+            where: {
+                user_id: null,
+                created_at: { lt: cutoffDate }
+            }
+        });
+    }
+
+    async deleteMany(ids: string[]): Promise<void> {
+        await this.prismaService.links.deleteMany({
+            where: { id: { in: ids } }
+        });
+    }
+
     async delete(id: string): Promise<void> {
         await this.prismaService.links.delete({
             where: { id }
@@ -81,13 +96,13 @@ export class LinkRepository implements LinkRepositoryInterface {
         };
     }
 
-    async create(data: CreateLinkDto, userId: string): Promise<LinkResponseDto> {
+    async create(data: CreateLinkDto, userId: string | null): Promise<LinkResponseDto> {
         const newLink = await this.prismaService.links.create({
             data: {
                 url: data.url,
                 short_code: data.short_code!,
                 password: data.password,
-                user_id: userId,
+                user_id: userId || null,
             },
             select: {
                 id: true,

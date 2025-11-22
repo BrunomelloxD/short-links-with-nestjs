@@ -11,4 +11,6 @@ export abstract class LinkRepositoryInterface {
     abstract findOneById(id: string): Promise<Links | null>;
     abstract update(id: string, data: Partial<CreateLinkDto>): Promise<LinkResponseDto>;
     abstract delete(id: string): Promise<void>;
+    abstract deleteMany(ids: string[]): Promise<void>;
+    abstract findExpiredAnonymousLinks(cutoffDate: Date): Promise<Links[]>;
 }

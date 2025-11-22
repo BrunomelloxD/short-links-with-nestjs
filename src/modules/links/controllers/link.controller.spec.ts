@@ -254,6 +254,70 @@ describe('LinkController', () => {
         });
     });
 
+    describe('createAnonymousLink', () => {
+        it('should create an anonymous link', async () => {
+            const createDto = {
+                url: 'https://example.com',
+            };
+
+            mockLinkService.create.mockResolvedValue(mockLinkResponse);
+
+            const result = await controller.createAnonymousLink(createDto);
+
+            expect(linkService.create).toHaveBeenCalledWith(createDto, null);
+            expect(result).toEqual(mockLinkResponse);
+        });
+
+        it('should pass null as userId for anonymous links', async () => {
+            const createDto = {
+                url: 'https://test.com',
+            };
+
+            mockLinkService.create.mockResolvedValue({
+                ...mockLinkResponse,
+                url: 'https://test.com',
+            });
+
+            await controller.createAnonymousLink(createDto);
+
+            expect(linkService.create).toHaveBeenCalledWith(createDto, null);
+            expect(linkService.create).toHaveBeenCalledTimes(1);
+        });
+
+        it('should create anonymous link without password protection', async () => {
+            const createDto = {
+                url: 'https://example.com',
+            };
+            const anonymousLink = {
+                ...mockLinkResponse,
+                password: undefined,
+            };
+
+            mockLinkService.create.mockResolvedValue(anonymousLink);
+
+            const result = await controller.createAnonymousLink(createDto);
+
+            expect(result.password).toBeUndefined();
+            expect(linkService.create).toHaveBeenCalledWith(createDto, null);
+        });
+
+        it('should handle different URLs for anonymous links', async () => {
+            const createDto = {
+                url: 'https://different-url.com',
+            };
+
+            mockLinkService.create.mockResolvedValue({
+                ...mockLinkResponse,
+                url: 'https://different-url.com',
+            });
+
+            const result = await controller.createAnonymousLink(createDto);
+
+            expect(result.url).toBe('https://different-url.com');
+            expect(linkService.create).toHaveBeenCalledWith(createDto, null);
+        });
+    });
+
     describe('error handling', () => {
         it('should propagate service errors on getLinks', async () => {
             const error = new Error('Service error');
@@ -270,6 +334,15 @@ describe('LinkController', () => {
 
             await expect(
                 controller.create({ url: 'https://example.com', protected: false }, 'user-123')
+            ).rejects.toThrow(error);
+        });
+
+        it('should propagate service errors on createAnonymousLink', async () => {
+            const error = new Error('Anonymous link creation failed');
+            mockLinkService.create.mockRejectedValue(error);
+
+            await expect(
+                controller.createAnonymousLink({ url: 'https://example.com' })
             ).rejects.toThrow(error);
         });
 

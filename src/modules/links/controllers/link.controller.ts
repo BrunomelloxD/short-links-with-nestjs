@@ -9,6 +9,7 @@ import { Public } from "src/common/decorators/public.decorator";
 import { GetLinkProtectedDto } from "../dtos/get-link-protected.dto";
 import { UpdateLinkDto } from "../dtos/update-link.dto";
 import { ApiBadRequestResponse, ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { CreateAnonymousLinkDto } from "../dtos/create-anonymous-link.dto";
 
 @ApiTags('Links')
 @Controller('links')
@@ -265,5 +266,39 @@ export class LinkController {
     })
     deleteLink(@Param('id') id: string, @GetUserId() userId: string): Promise<void> {
         return this.linkService.delete(id, userId);
+    }
+
+    @Public()
+    @Post('create-anonymous')
+    @HttpCode(HttpStatus.CREATED)
+    @ApiOperation({
+        summary: 'Create anonymous short link',
+        description: 'Create a temporary short link without authentication. Link expires after 24 hours and cannot be password protected'
+    })
+    @ApiBody({
+        type: CreateAnonymousLinkDto,
+        description: 'Anonymous link creation data',
+        examples: {
+            example1: {
+                summary: 'Create anonymous link',
+                description: 'Create a temporary public link that expires in 24 hours',
+                value: {
+                    url: 'https://example.com'
+                }
+            }
+        }
+    })
+    @ApiCreatedResponse({
+        description: 'Anonymous link created successfully. Link will be automatically deleted after 24 hours',
+        type: LinkResponseDto
+    })
+    @ApiBadRequestResponse({
+        description: 'Invalid URL format'
+    })
+    @ApiConflictResponse({
+        description: 'Short code already exists (rare collision)'
+    })
+    createAnonymousLink(@Body() data: CreateAnonymousLinkDto): Promise<LinkResponseDto> {
+        return this.linkService.create(data, null);
     }
 }
