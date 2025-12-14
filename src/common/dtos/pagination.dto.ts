@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, Min } from 'class-validator';
+import { ExportFormat } from '../constants/export-format.constant';
 
 export class PaginationDto {
     @ApiProperty({
@@ -36,4 +37,14 @@ export class PaginationDto {
     })
     @IsOptional()
     search?: string;
+
+    @ApiProperty({
+        description: 'Response format',
+        example: 'pdf',
+        enum: ExportFormat,
+        required: false
+    })
+    @IsOptional()
+    @IsEnum(ExportFormat, { message: `format must be one of the following values: ${Object.values(ExportFormat).join(', ')}` })
+    format?: string;
 }

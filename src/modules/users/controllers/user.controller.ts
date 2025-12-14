@@ -87,7 +87,7 @@ export class UserController {
     @ApiBadRequestResponse({
         description: 'Invalid query parameters'
     })
-    findAll(@Query() queryParams: PaginationDto): Promise<PaginatedResponseDto<UserResponseDto>> {
+    findAll(@Query() queryParams: PaginationDto): Promise<PaginatedResponseDto<UserResponseDto> | { base64: string }> {
         return this.userService.findAll(queryParams);
     }
 

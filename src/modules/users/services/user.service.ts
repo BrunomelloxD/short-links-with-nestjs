@@ -7,10 +7,12 @@ import { security } from "src/common/config/env.config";
 import { UserResponseDto } from "../dtos/response/user-response.dto";
 import { UpdateUserDto } from "../dtos/update-user.dto";
 import { Prisma, User } from "@prisma/client";
-
+import { ExportFormat } from "src/common/constants/export-format.constant";
+import { PdfService } from "src/common/services/pdf.service";
+import { XlsxService } from "src/common/services/xlsx.service";
 @Injectable()
 export class UserService {
-    constructor(private readonly userRepository: UserRepository) { }
+    constructor(private readonly userRepository: UserRepository, private readonly pdfService: PdfService, private readonly xlsxService: XlsxService) { }
 
     async updateUserWithValidation(id: string, data: UpdateUserDto, userId: string): Promise<User> {
         if (id !== userId) {
@@ -53,8 +55,26 @@ export class UserService {
         return this.userRepository.existsById(id, deleted_at_filter);
     }
 
-    async findAll(paginationDto: PaginationDto): Promise<PaginatedResponseDto<UserResponseDto>> {
-        return await this.userRepository.findAll(paginationDto);
+    async findAll(paginationDto: PaginationDto): Promise<PaginatedResponseDto<UserResponseDto> | { base64: string }> {
+        const result = await this.userRepository.findAll(paginationDto);
+
+        if (paginationDto.format === ExportFormat.PDF) {
+            const pdfBuffer = await this.pdfService.generateUserListPdf(
+                result.data.map(user => ({ name: user.name, email: user.email }))
+            );
+            const base64 = pdfBuffer.toString('base64');
+            return { base64 };
+        }
+
+        if (paginationDto.format === ExportFormat.XLSX) {
+            const xlsxBuffer = await this.xlsxService.generateUserListXlsx(
+                result.data.map(user => ({ name: user.name, email: user.email }))
+            );
+            const base64 = xlsxBuffer.toString('base64');
+            return { base64 };
+        }
+
+        return result;
     }
 
     async create(data: Prisma.UserCreateInput): Promise<UserResponseDto> {

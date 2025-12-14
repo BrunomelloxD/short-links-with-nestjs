@@ -35,4 +35,4 @@ USER nodejs
 
 EXPOSE 3000
 
-CMD ["node", "dist/app/app/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/app/main.js"]

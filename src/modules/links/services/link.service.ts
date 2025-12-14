@@ -6,10 +6,11 @@ import { LinkResponseDto } from "../dtos/response/link-response.dto";
 import { CreateLinkDto } from "../dtos/create-link.dto";
 import { nanoid } from 'nanoid';
 import { UpdateLinkDto } from "../dtos/update-link.dto";
+import { UserRepository } from "src/modules/users/repositories/user.repository";
 
 @Injectable()
 export class LinkService {
-    constructor(private readonly linkRepository: LinkRepository) { }
+    constructor(private readonly linkRepository: LinkRepository, private readonly userRepository: UserRepository) { }
 
     async delete(id: string, userId: string): Promise<void> {
         const link = await this.linkRepository.findOneById(id);
@@ -57,7 +58,13 @@ export class LinkService {
         return response;
     }
 
-    getLinks(paginationDto: PaginationDto, userId: string): Promise<PaginatedResponseDto<LinkResponseDto>> {
+    async getLinks(paginationDto: PaginationDto, userId: string): Promise<PaginatedResponseDto<LinkResponseDto>> {
+        const user = await this.userRepository.existsById(userId);
+
+        if (!user) {
+            throw new NotFoundException(`User with ID ${userId} not found.`);
+        }
+
         return this.linkRepository.findAll(paginationDto, userId);
     }
 

@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ForbiddenException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { LinkService } from './link.service';
 import { LinkRepository } from '../repositories/link.repository';
+import { UserRepository } from '../../users/repositories/user.repository';
 import { Links } from '@prisma/client';
 import { CreateLinkDto } from '../dtos/create-link.dto';
 import { UpdateLinkDto } from '../dtos/update-link.dto';
@@ -22,6 +23,7 @@ type UpdateLinkTestDto = UpdateLinkDto & {
 describe('LinkService', () => {
     let service: LinkService;
     let linkRepository: jest.Mocked<LinkRepository>;
+    let userRepository: jest.Mocked<UserRepository>;
 
     const mockLinkRepository = {
         findAll: jest.fn(),
@@ -30,6 +32,10 @@ describe('LinkService', () => {
         findOneById: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+    };
+
+    const mockUserRepository = {
+        existsById: jest.fn(),
     };
 
     const mockLink: Links = {
@@ -50,11 +56,16 @@ describe('LinkService', () => {
                     provide: LinkRepository,
                     useValue: mockLinkRepository,
                 },
+                {
+                    provide: UserRepository,
+                    useValue: mockUserRepository,
+                },
             ],
         }).compile();
 
         service = module.get<LinkService>(LinkService);
         linkRepository = module.get(LinkRepository);
+        userRepository = module.get(UserRepository);
 
         jest.spyOn(Math, 'random').mockReturnValue(0.123456789);
     });
@@ -71,10 +82,12 @@ describe('LinkService', () => {
                 meta: { total: 1, page: 1, last_page: 1 },
             };
 
+            mockUserRepository.existsById.mockResolvedValue(true);
             mockLinkRepository.findAll.mockResolvedValue(mockResult);
 
             const result = await service.getLinks(paginationDto, 'user-123');
 
+            expect(userRepository.existsById).toHaveBeenCalledWith('user-123');
             expect(linkRepository.findAll).toHaveBeenCalledWith(paginationDto, 'user-123');
             expect(result).toEqual(mockResult);
         });
@@ -414,6 +427,7 @@ describe('LinkService', () => {
     describe('edge cases and error scenarios', () => {
         it('should handle repository errors gracefully', async () => {
             const repositoryError = new Error('Database connection failed');
+            mockUserRepository.existsById.mockResolvedValue(true);
             mockLinkRepository.findAll.mockRejectedValue(repositoryError);
 
             await expect(
@@ -426,6 +440,7 @@ describe('LinkService', () => {
                 data: [],
                 meta: { total: 0, page: 1, last_page: 0 },
             };
+            mockUserRepository.existsById.mockResolvedValue(true);
             mockLinkRepository.findAll.mockResolvedValue(emptyResult);
 
             const result = await service.getLinks({ page: 1, limit: 10, search: '' }, 'user-123');
