@@ -25,14 +25,17 @@ COPY --from=builder /home/node/app/dist ./dist
 COPY --from=builder /home/node/app/prisma ./prisma
 # Copy package files
 COPY --from=builder /home/node/app/package*.json ./
+# Copy start script
+COPY start.sh ./
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 && \
-    chown -R nodejs:nodejs /home/node/app
+    chown -R nodejs:nodejs /home/node/app && \
+    chmod +x /home/node/app/start.sh
 
 USER nodejs
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/app/main.js"]
+CMD ["./start.sh"]
