@@ -8,9 +8,10 @@ import { HealthModule } from 'src/modules/health/health.module';
 import { LinkModule } from 'src/modules/links/link.module';
 import { TasksModule } from 'src/modules/tasks/task.module';
 import { UserModule } from 'src/modules/users/user.module';
+import { ZipCodeModule } from 'src/modules/zip-code/zip-code.module';
 
 @Module({
-  imports: [HealthModule, UserModule, AuthModule, LinkModule, TasksModule,
+  imports: [HealthModule, UserModule, AuthModule, LinkModule, TasksModule, ZipCodeModule,
     ThrottlerModule.forRoot({
       throttlers: [
         {

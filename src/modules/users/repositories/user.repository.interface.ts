@@ -2,7 +2,6 @@ import { Prisma, User } from '@prisma/client';
 import { PaginatedResponseDto } from '../../../common/dtos/paginated-response.dto';
 import { PaginationDto } from '../../../common/dtos/pagination.dto';
 import { UserResponseDto } from '../dtos/response/user-response.dto';
-
 export abstract class IUserRepository {
     abstract findAll({ page, limit, search }: PaginationDto): Promise<PaginatedResponseDto<UserResponseDto>>;
     abstract create(data: Prisma.UserCreateInput): Promise<UserResponseDto>;

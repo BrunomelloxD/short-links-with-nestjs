@@ -12,6 +12,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["public", "log"]
 }
 
 model User {
@@ -28,6 +29,7 @@ model User {
 
   @@index([email])
   @@map("users")
+  @@schema("public")
 }
 
 model PasswordResetCode {
@@ -41,6 +43,7 @@ model PasswordResetCode {
 
   @@unique([user_id, code])
   @@map("password_reset_code")
+  @@schema("public")
 }
 
 model Links {
@@ -56,6 +59,7 @@ model Links {
 
   @@index([short_code])
   @@map("links")
+  @@schema("public")
 }
 
 model AccessLog {
@@ -68,4 +72,19 @@ model AccessLog {
 
   @@index([link_id])
   @@map("access_logs")
+  @@schema("public")
+}
+
+model ZipCodeLog {
+  id          Int       @id @default(autoincrement())
+  zipCode     String    @map("zip_code") @db.VarChar(8)
+  consultedAt DateTime  @default(now()) @map("consulted_at") @db.Timestamptz()
+  ipAddress   String?   @map("ip_address") @db.VarChar(45)
+  userAgent   String?   @map("user_agent") @db.VarChar(500)
+  city        String?   @map("city") @db.VarChar(100)
+  state       String?   @map("state") @db.VarChar(2)
+  success     Boolean   @default(true) @map("success")
+
+  @@map("zip_code_logs")
+  @@schema("log")
 }

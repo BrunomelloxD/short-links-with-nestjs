@@ -25,3 +25,7 @@ export const security = {
         port: process.env.MAIL_PORT
     }
 };
+
+export const externalApis = {
+    viaCepUrl: process.env.VIA_CEP_URL || 'https://viacep.com.br',
+};
