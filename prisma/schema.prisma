@@ -15,6 +15,15 @@ datasource db {
   schemas  = ["public", "log"]
 }
 
+model PortalAccessLog {
+  id            Int      @id @default(autoincrement())
+  acessIn    DateTime @default(now()) @map("acess_in") @db.Timestamptz()
+  ipAddress     String?  @map("ip_address") @db.VarChar(45)
+  userAgent     String?  @map("user_agent") @db.VarChar(500)
+
+  @@map("portal_access_log")
+  @@schema("log")
+}
 model User {
   id                  String              @id @default(uuid())
   email               String              @unique

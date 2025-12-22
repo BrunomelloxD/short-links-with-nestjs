@@ -9,9 +9,10 @@ import { LinkModule } from 'src/modules/links/link.module';
 import { TasksModule } from 'src/modules/tasks/task.module';
 import { UserModule } from 'src/modules/users/user.module';
 import { ZipCodeModule } from 'src/modules/zip-code/zip-code.module';
+import { PortalAccessLogModule } from 'src/modules/portal-access-log/portal-access-log.module';
 
 @Module({
-  imports: [HealthModule, UserModule, AuthModule, LinkModule, TasksModule, ZipCodeModule,
+  imports: [HealthModule, UserModule, AuthModule, LinkModule, TasksModule, ZipCodeModule, PortalAccessLogModule,
     ThrottlerModule.forRoot({
       throttlers: [
         {
