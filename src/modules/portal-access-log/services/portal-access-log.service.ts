@@ -8,9 +8,7 @@ export class PortalAccessLogService {
   ) {}
 
   async logAccess(ipAddress?: string, userAgent?: string): Promise<void> {
-    const acessIn = new Date(
-      new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }),
-    );
+    const acessIn = new Date();
 
     await this.portalAccessLogRepository.create({
       ipAddress: ipAddress || null,
